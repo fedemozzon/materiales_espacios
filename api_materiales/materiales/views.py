@@ -46,4 +46,14 @@ def get_providers_for_material(id_material, date_expected, cant):
                 providers_list.append({"id_provider": provider[2]})
     return providers_list
 
-schema_view = get_swagger_view(title='Pastebin API')
+
+@csrf_exempt
+@api_view(['PUT'])
+def stock_update(request):
+    body = json.loads(request.body)
+    material_id = body.get('material_id')
+    provider_id = body.get('provider_id')
+    amount = body.get('amount')
+    actual_amount = Material_Provider.objects.all().filter(material_id = int(material_id), provider_id = int(provider_id)).values_list()[0][3]
+    Material_Provider.objects.filter(material_id = int(material_id), provider_id = int(provider_id)).update(total_amount= int(amount) + actual_amount)
+    return JsonResponse({"La cantidad ha sido actualizada a ": actual_amount + int(amount)})
