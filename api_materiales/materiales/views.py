@@ -1,10 +1,12 @@
 from datetime import datetime, tzinfo
 from django.shortcuts import render
 import json
+from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Material, Material_Provider, Material_arrived
 import jwt
+from rest_framework_swagger.views import get_swagger_view
 
 @csrf_exempt
 def login(request):
@@ -15,7 +17,7 @@ def login(request):
  
 # Query para probar el método 
 # localhost:8000/ask_for_material/?id_material=4&date_expected=2022-11-19&cant=100   
-@csrf_exempt
+@api_view(['GET'])
 def ask_for_material(request):
     id_material = request.GET.get('id_material')
     date_expected = request.GET.get('date_expected')
@@ -43,3 +45,5 @@ def get_providers_for_material(id_material, date_expected, cant):
             if((compromised_materials_for_provider(provider[2], date_expected, id_material) + provider[3]) > int(cant)):
                 providers_list.append({"id_provider": provider[2]})
     return providers_list
+
+schema_view = get_swagger_view(title='Pastebin API')
