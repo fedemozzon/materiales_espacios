@@ -20,3 +20,4 @@ class Material_Provider(models.Model):
     provider_id = models.ForeignKey(Provider, null=True, on_delete=models.CASCADE)
     total_amount = models.IntegerField(default = 1000)
     compromise_amount = models.IntegerField(default = 0)
+    
