@@ -54,6 +54,10 @@ def stock_update(request):
     material_id = body.get('material_id')
     provider_id = body.get('provider_id')
     amount = body.get('amount')
-    actual_amount = Material_Provider.objects.all().filter(material_id = int(material_id), provider_id = int(provider_id)).values_list()[0][3]
-    Material_Provider.objects.filter(material_id = int(material_id), provider_id = int(provider_id)).update(total_amount= int(amount) + actual_amount)
-    return JsonResponse({"La cantidad ha sido actualizada a ": actual_amount + int(amount)})
+    material_provider = list(Material_Provider.objects.all().filter(material_id = int(material_id), provider_id = int(provider_id)).values_list())
+    if(material_provider == []):
+        return JsonResponse({"message": "No se encontro el material con el proveedor"})
+    else:
+        actual_amount = material_provider[0][3]
+        Material_Provider.objects.filter(material_id = int(material_id), provider_id = int(provider_id)).update(total_amount= int(amount) + actual_amount)
+        return JsonResponse({"La cantidad ha sido actualizada a ": actual_amount + int(amount)})
