@@ -37,7 +37,7 @@ class Reserve_material(models.Model):
     provider_id = models.ForeignKey(Provider, null=True,on_delete=models.CASCADE)
     amount = models.IntegerField(null=True, default = 0)
     reserve_date = models.DateTimeField(null=True,)
-    factory_place_id = models.ForeignKey(Factory_place, null=True, on_delete=models.CASCADE)
+    factory_place_id = models.ForeignKey(Factory_Place, null=True, on_delete=models.CASCADE)
     enterprise_id = models.ForeignKey(Enterprise, null=True, on_delete=models.CASCADE)
     state = models.CharField(max_length=100)
     

@@ -67,7 +67,6 @@ def stock_update(request):
         actual_amount = material_provider[0][3]
         Material_Provider.objects.filter(material_id = int(material_id), provider_id = int(provider_id)).update(total_amount= int(amount) + actual_amount)
         return JsonResponse({"La cantidad ha sido actualizada a ": actual_amount + int(amount)})
-<<<<<<< HEAD
 
 # Query para probar el método 
 # localhost:8000/reserve_material/
@@ -121,7 +120,6 @@ def cancel_reserve_material(request):
     except IndexError:
         return {"message": "No existe el material de dicho proveedor indicado en la reserva"}
     return JsonResponse({"message": "Eliminado correctamente"})
-=======
     
 @csrf_exempt
 @api_view(['POST'])
@@ -148,4 +146,3 @@ def find_place_by_dates(request):
             return JsonResponse({"places": places_in_date})
         else:
             return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
->>>>>>> main
