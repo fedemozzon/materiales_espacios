@@ -97,7 +97,7 @@ def reserve_material_of_provider(id_material, id_provider, amount, reserve_date,
         newReserve = Reserve_material()
         material = Material.objects.get(id=id_material)
         provider = Provider.objects.get(id=id_provider)
-        sede = Factory_place.objects.get(id=id_sede)
+        sede = Factory_Place.objects.get(id=id_sede)
         empresa = Enterprise.objects.get(id=id_empresa)
         newReserve.add(material, provider, amount, reserve_date, sede, empresa)
         newReserve.save()
