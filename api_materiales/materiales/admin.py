@@ -16,7 +16,7 @@ class MaterialProviderAdmin(admin.ModelAdmin):
         return obj.material_id.name
 
     def get_provider_name(self, obj):
-        return obj.provider_id.name
+        return obj.provider_id.name 
 
 class EnterpriseAdmin(admin.ModelAdmin):
     list_display = ('name',)
@@ -44,7 +44,8 @@ class ReserveMaterialAdmin(admin.ModelAdmin):
 admin.site.register(Provider, ProviderAdmin)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Material_Provider, MaterialProviderAdmin)
+admin.site.register(Reserve_Factory)
 admin.site.register(Material_arrived)
 admin.site.register(Enterprise, EnterpriseAdmin)
-admin.site.register(Factory_place, FactoryPlaceAdmin)
+admin.site.register(Factory_Place, FactoryPlaceAdmin)
 admin.site.register(Reserve_material, ReserveMaterialAdmin)
