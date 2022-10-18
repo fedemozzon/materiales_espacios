@@ -14,6 +14,9 @@ urlpatterns = [
     path('reserve', views.reserve, name='reserve_facility'),
     path('find_place/', views.find_place_by_dates, name='find_place_by_dates'),
     path('ask_for_material/', views.ask_for_material, name='ask_for_material'),
+    path('materials', views.materials, name='materials'),
     path('stock/', views.stock_update, name='ask_for_material'),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('reserve_material/', views.reserve_material, name='reserve_material'),
+    path('cancel_reserve_material/', views.cancel_reserve_material, name='cancel_reserve_material')
 ]
