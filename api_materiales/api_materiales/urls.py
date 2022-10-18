@@ -15,4 +15,5 @@ urlpatterns = [
     path('stock/', views.stock_update, name='ask_for_material'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('reserve_material/', views.reserve_material, name='reserve_material'),
+    path('cancel_reserve_material/', views.cancel_reserve_material, name='cancel_reserve_material')
 ]

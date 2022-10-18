@@ -102,7 +102,20 @@ def reserve_material_of_provider(id_material, id_provider, amount, reserve_date,
         newReserve.save()
         json = newReserve.strJson()
     except IndexError:
-        json = {"message":"No existe el material indicado para dicho proveedor"}
+        return {"message":"No existe el material indicado para dicho proveedor"}
     except: 
-        json = {"message":"Error en la consulta"}
+        return {"message":"Error en la consulta"}
     return json
+
+@api_view(['GET'])
+def cancel_reserve_material(request):
+    id_reserve = request.GET.get('id_reserve')
+    try:
+        reserve = Reserve_material.objects.get(id=id_reserve)
+        material_provider = Material_Provider.objects.all().filter(material_id=reserve.material_id, provider_id=reserve.provider_id)[0]
+        material_provider.compromise_amount = material_provider.compromise_amount - reserve.amount
+        material_provider.save()
+        delete = reserve.delete()
+    except IndexError:
+        return {"message": "No existe el material de dicho proveedor indicado en la reserva"}
+    return JsonResponse({"message": "Eliminado correctamente"})
