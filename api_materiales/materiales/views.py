@@ -1,10 +1,15 @@
+from cmath import inf, pi
 from datetime import datetime, tzinfo
 from django.shortcuts import render
 import json
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+<<<<<<< HEAD
 from .models import *
+=======
+from .models import Factory_Place, Material, Material_Provider, Material_arrived, Reserve_Factory
+>>>>>>> main
 import jwt
 from rest_framework_swagger.views import get_swagger_view
 
@@ -66,6 +71,7 @@ def stock_update(request):
         actual_amount = material_provider[0][3]
         Material_Provider.objects.filter(material_id = int(material_id), provider_id = int(provider_id)).update(total_amount= int(amount) + actual_amount)
         return JsonResponse({"La cantidad ha sido actualizada a ": actual_amount + int(amount)})
+<<<<<<< HEAD
 
 # Query para probar el método 
 # localhost:8000/reserve_material/
@@ -119,3 +125,31 @@ def cancel_reserve_material(request):
     except IndexError:
         return {"message": "No existe el material de dicho proveedor indicado en la reserva"}
     return JsonResponse({"message": "Eliminado correctamente"})
+=======
+    
+@csrf_exempt
+@api_view(['POST'])
+def reserve(request):
+    request_body = json.loads(request.body)
+    
+    Reserve_Factory.objects.create(factory_place_id = request_body.get('factory_place_id'), date_start = request_body.get('date_start'), date_end = request_body.get('date_end'), enterprise = request_body.get('enterprise'), state = request_body.get('state'))
+    return JsonResponse({"message": "Reserva creada exitosamente"})
+
+@csrf_exempt
+@api_view(['GET'])
+def find_place_by_dates(request):
+    date_start = datetime.strptime(request.GET.get('date_start'), '%Y-%m-%d')
+    date_end = datetime.strptime(request.GET.get('date_end'), '%Y-%m-%d')
+    factory_id = int(request.GET.get('factory_place_id'))
+    caca = list(Reserve_Factory.objects.all().values_list())
+    places = list(Reserve_Factory.objects.all().filter(factory_place_id = factory_id).values_list())
+    if(places == []):
+        return JsonResponse({"message": "No existe un lugar con ese ID"})
+    else:
+        places_in_date = list(filter(lambda place: date_start >= place[3].replace(tzinfo = None), places))
+        if(places_in_date != []):
+            print(places_in_date)
+            return JsonResponse({"places": places_in_date})
+        else:
+            return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
+>>>>>>> main
