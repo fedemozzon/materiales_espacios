@@ -25,12 +25,11 @@ class Material_arrived(models.Model):
     provider_id = models.ForeignKey(Provider, null=True, on_delete=models.CASCADE)
     amount = models.IntegerField(default = 0)
     date = models.DateTimeField()
-<<<<<<< HEAD
 
 class Enterprise(models.Model):
     name = models.CharField(max_length=100)
 
-class Factory_place(models.Model):
+class Factory_Place(models.Model):
     name = models.CharField(max_length=100)
 
 class Reserve_material(models.Model):
@@ -63,10 +62,6 @@ class Reserve_material(models.Model):
             "state": self.state
         }
         return json
-=======
-    
-class Factory_Place(models.Model):
-    name = models.CharField(max_length=100)
 
 class Reserve_Factory(models.Model):
     factory_place_id = models.ForeignKey(Factory_Place, null=True, on_delete=models.CASCADE)
@@ -74,4 +69,3 @@ class Reserve_Factory(models.Model):
     date_end = models.DateTimeField()
     enterprise = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
->>>>>>> main

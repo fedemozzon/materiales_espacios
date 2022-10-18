@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-<<<<<<< HEAD
 from .models import *
 
 class ProviderAdmin(admin.ModelAdmin):
@@ -45,17 +44,8 @@ class ReserveMaterialAdmin(admin.ModelAdmin):
 admin.site.register(Provider, ProviderAdmin)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Material_Provider, MaterialProviderAdmin)
-=======
-from .models import Factory_Place, Material, Material_Provider, Material_arrived, Provider, Reserve_Factory
-
-# Register your models here.
-admin.site.register(Provider)
-admin.site.register(Material)
 admin.site.register(Reserve_Factory)
-admin.site.register(Factory_Place)
-admin.site.register(Material_Provider)
->>>>>>> main
 admin.site.register(Material_arrived)
 admin.site.register(Enterprise, EnterpriseAdmin)
-admin.site.register(Factory_place, FactoryPlaceAdmin)
+admin.site.register(Factory_Place, FactoryPlaceAdmin)
 admin.site.register(Reserve_material, ReserveMaterialAdmin)

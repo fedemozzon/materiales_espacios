@@ -5,11 +5,7 @@ import json
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-<<<<<<< HEAD
 from .models import *
-=======
-from .models import Factory_Place, Material, Material_Provider, Material_arrived, Reserve_Factory
->>>>>>> main
 import jwt
 from rest_framework_swagger.views import get_swagger_view
 
