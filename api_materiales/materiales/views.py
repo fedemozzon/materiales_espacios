@@ -1,5 +1,6 @@
 from cmath import inf, pi
-from datetime import datetime, tzinfo
+from datetime import date, datetime, tzinfo
+from zoneinfo import available_timezones
 from django.shortcuts import render
 import json
 from rest_framework.decorators import api_view
@@ -125,20 +126,45 @@ def cancel_reserve_material(request):
 @api_view(['POST'])
 def reserve(request):
     request_body = json.loads(request.body)
-    
-    Reserve_Factory.objects.create(factory_place_id = request_body.get('factory_place_id'), date_start = request_body.get('date_start'), date_end = request_body.get('date_end'), enterprise = request_body.get('enterprise'), state = request_body.get('state'))
-    return JsonResponse({"message": "Reserva creada exitosamente"})
+    date_start = datetime.strptime(request_body.get('date_start'), '%Y-%m-%d')
+    date_end = datetime.strptime(request_body.get('date_end'), '%Y-%m-%d')
+    available_spaces = find_avalivable_place(date_start,date_end)
+    factory_place_id = request_body.get('factory_place_id')
+    print("lugares disponibles")
+    print(type(available_spaces) == str)
+    if(type(available_spaces) == str):
+        return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
+    else:
+        if( int(factory_place_id) not in available_spaces):
+            return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
+        else:
+            factory = Factory_Place.objects.get(id = request_body.get('factory_place_id'))
+            Reserve_Factory.objects.create(factory_place_id = factory, date_start = date_start, date_end = date_end, enterprise = request_body.get('enterprise'), state = request_body.get('state'))
+            return JsonResponse({"message": "El lugar ha sido reservado"})
 
+ # /find_place/?date_start=2023-12-9&date_end=2023-12-30
 @csrf_exempt
 @api_view(['GET'])
 def find_place_by_dates(request):
     date_start = datetime.strptime(request.GET.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request.GET.get('date_end'), '%Y-%m-%d')
-    factory_id = int(request.GET.get('factory_place_id'))
-    caca = list(Reserve_Factory.objects.all().values_list())
-    places = list(Reserve_Factory.objects.all().filter(factory_place_id = factory_id).values_list())
-    if(places == []):
-        return JsonResponse({"message": "No existe un lugar con ese ID"})
+    return JsonResponse({"Message": find_avalivable_place(date_start, date_end)})
+
+def find_avalivable_place(date_start, date_end):
+    places = list(Factory_Place.objects.all().values_list())
+    places = list(map(lambda place: place[0], places))
+    reservation = list(Reserve_Factory.objects.all().values_list())
+    for place in reservation:
+        print(place[2])
+        print(place[3])
+        print(date_start)
+        print(place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None))
+    unavaliable_places = list(filter(lambda place: (place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None) ), reservation))
+    unavaliable_places = list(map(lambda place: place[1], unavaliable_places))
+    available_places = list(filter(lambda place: place not in unavaliable_places, places))
+    print(available_places)
+    if(available_places != []):
+        return available_places
     else:
         places_in_date = list(filter(lambda place: date_start >= place[3].replace(tzinfo = None), places))
         if(places_in_date != []):
