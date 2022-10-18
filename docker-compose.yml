@@ -21,9 +21,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_NAME=dssd_xar1
+      - POSTGRES_USER=dssd
+      - POSTGRES_PASSWORD=kMiQMo6XtbYhK2M2acf4pbv4MZjuaj6F
+      - POSTGRES_HOST=dpg-cd7d3oqen0hgupudp0t0-a.oregon-postgres.render.com
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
