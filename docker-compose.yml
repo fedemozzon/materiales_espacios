@@ -21,10 +21,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - POSTGRES_NAME=dssd_xar1
-      - POSTGRES_USER=dssd
-      - POSTGRES_PASSWORD=kMiQMo6XtbYhK2M2acf4pbv4MZjuaj6F
-      - POSTGRES_HOST=dpg-cd7d3oqen0hgupudp0t0-a.oregon-postgres.render.com
+      - POSTGRES_NAME=bddssd
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=VDnDpVSTwNNyfyq1GCX4QLGLbkcG1jJk
+      - POSTGRES_HOST=VDnDpVSTwNNyfyq1GCX4QLGLbkcG1jJkdpg-cd7i3dien0hgupuslppg-a.oregon-postgres.render.com
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
