@@ -172,3 +172,14 @@ def find_avalivable_place(date_start, date_end):
             return JsonResponse({"places": places_in_date})
         else:
             return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
+        
+@api_view(['GET'])
+def cancel_reservation(request):
+    print(request.GET.get('id_reserve'))
+    id_reserve = request.GET.get('id_reserve')
+    try:
+        Reserve_Factory.objects.get(id = id_reserve)
+        reserve.delete()
+        return JsonResponse({"message": "Reserva cancelada correctamente"})
+    except:
+        return JsonResponse({"message": "No existe la reserva"})
