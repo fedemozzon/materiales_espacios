@@ -2,23 +2,17 @@ from cmath import inf, pi
 from datetime import datetime, tzinfo
 from django.shortcuts import render
 import json
-from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Factory_Place, Material, Material_Provider, Material_arrived, Reserve_Factory
-import jwt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import permissions
 from rest_framework_swagger.views import get_swagger_view
 
-@csrf_exempt
-def login(request):
-    body = json.loads(request.body)
-    print(body.get('username'))
-    token = jwt.encode({"username": body.get('username'), "exp":1371720939}, algorithm='HS256', key='secret')
-    print(token)
- 
 # Query para probar el método 
 # localhost:8000/ask_for_material/?id_material=4&date_expected=2022-11-19&cant=100   
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def ask_for_material(request):
     id_material = request.GET.get('id_material')
     date_expected = request.GET.get('date_expected')
@@ -26,16 +20,19 @@ def ask_for_material(request):
     return JsonResponse({"materials": get_providers_for_material(id_material, date_expected, cant)})
 
 @csrf_exempt
+@permission_classes([permissions.IsAuthenticated])
 def materials(request):
     materials = Material.objects.values_list()
     return JsonResponse({"materials": list(materials)})
 
+@permission_classes([permissions.IsAuthenticated])
 def compromised_materials_for_provider(id_provider,expected_date, id_material):
     expected_date = datetime.strptime(expected_date, '%Y-%m-%d')
     materials = Material_arrived.objects.all().filter(provider_id = int(id_provider), material_id = int(id_material)).values_list()
     materials_in_date = filter(lambda material: datetime.now()<= material[4].replace(tzinfo = None) <= expected_date, materials)
     return sum(map(lambda material: material[3], materials_in_date))
 
+@permission_classes([permissions.IsAuthenticated])
 def get_providers_for_material(id_material, date_expected, cant):
     providers_list = []
     providers_for_material =  Material_Provider.objects.all().filter(material_id = int(id_material)).values_list()
@@ -50,6 +47,7 @@ def get_providers_for_material(id_material, date_expected, cant):
 
 @csrf_exempt
 @api_view(['PUT'])
+@permission_classes([permissions.IsAuthenticated])
 def stock_update(request):
     body = json.loads(request.body)
     material_id = body.get('material_id')
@@ -65,6 +63,7 @@ def stock_update(request):
     
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
 def reserve(request):
     request_body = json.loads(request.body)
     
@@ -73,6 +72,7 @@ def reserve(request):
 
 @csrf_exempt
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def find_place_by_dates(request):
     date_start = datetime.strptime(request.GET.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request.GET.get('date_end'), '%Y-%m-%d')
