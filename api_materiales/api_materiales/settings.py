@@ -21,12 +21,16 @@ os.path.dirname(os.path.abspath("__file__"))
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--su*z#03+qpcbqobf90ey@c1f@xu1nqncrqyl*s!wts9+1-nvl'
-
+#SECRET_KEY = 'django-insecure--su*z#03+qpcbqobf90ey@c1f@xu1nqncrqyl*s!wts9+1-nvl'
+SECRET_KEY = os.environ.get('SECRET_KEY', default='django-insecure--su*z#03+qpcbqobf90ey@c1f@xu1nqncrqyl*s!wts9+1-nvl')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
+DEBUG = False
+ALLOWED_HOSTS = []
 
-
+RENDER_EXTERNAL_HOSTNAME = 'VDnDpVSTwNNyfyq1GCX4QLGLbkcG1jJkdpg-cd7i3dien0hgupuslppg-a.oregon-postgres.render.com' #os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if (RENDER_EXTERNAL_HOSTNAME): 
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
