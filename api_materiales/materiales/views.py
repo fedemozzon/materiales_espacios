@@ -21,19 +21,16 @@ def ask_for_material(request):
     return JsonResponse({"materials": get_providers_for_material(id_material, date_expected, cantidad)})
 
 @csrf_exempt
-@permission_classes([permissions.IsAuthenticated])
 def materials(request):
     materials = Material.objects.values_list()
     return JsonResponse({"materials": list(materials)})
 
-@permission_classes([permissions.IsAuthenticated])
 def compromised_materials_for_provider(id_provider,expected_date, id_material):
     expected_date = datetime.strptime(expected_date, '%Y-%m-%d')
     materials = Material_arrived.objects.all().filter(provider_id = int(id_provider), material_id = int(id_material)).values_list()
     materials_in_date = filter(lambda material: datetime.now()<= material[4].replace(tzinfo = None) <= expected_date, materials)
     return sum(map(lambda material: material[3], materials_in_date))
 
-@permission_classes([permissions.IsAuthenticated])
 def get_providers_for_material(id_material, date_expected, cantidad):
     providers_list = []
     try:
@@ -89,7 +86,6 @@ def reserve_material(request):
     id_empresa = request.POST.get("id_empresa")
     return JsonResponse(reserve_material_of_provider(id_material, id_provider, amount, reserve_date, id_sede, id_empresa))
 
-@permission_classes([permissions.IsAuthenticated])
 def reserve_material_of_provider(id_material, id_provider, amount, reserve_date, id_sede, id_empresa):
     try:
         material_provider = Material_Provider.objects.all().filter(material_id=id_material, provider_id=id_provider)[0]
