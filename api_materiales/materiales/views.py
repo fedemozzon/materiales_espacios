@@ -3,23 +3,17 @@ from datetime import date, datetime, tzinfo
 from zoneinfo import available_timezones
 from django.shortcuts import render
 import json
-from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
-import jwt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import permissions
 from rest_framework_swagger.views import get_swagger_view
 
-@csrf_exempt
-def login(request):
-    body = json.loads(request.body)
-    print(body.get('username'))
-    token = jwt.encode({"username": body.get('username'), "exp":1371720939}, algorithm='HS256', key='secret')
-    print(token)
- 
 # Query para probar el método 
 # localhost:8000/ask_for_material/?id_material=4&date_expected=2022-11-19&cantidad=100   
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def ask_for_material(request):
     id_material = request.GET.get('id_material')
     date_expected = request.GET.get('date_expected')
@@ -56,6 +50,7 @@ def get_providers_for_material(id_material, date_expected, cantidad):
 
 @csrf_exempt
 @api_view(['PUT'])
+@permission_classes([permissions.IsAuthenticated])
 def stock_update(request):
     body = json.loads(request.body)
     material_id = body.get('material_id')
@@ -81,6 +76,7 @@ def stock_update(request):
 }    """
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
 def reserve_material(request):
     id_material = request.POST.get("id_material")
     id_provider = request.POST.get("id_provider")
@@ -110,6 +106,7 @@ def reserve_material_of_provider(id_material, id_provider, amount, reserve_date,
     return json
 
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def cancel_reserve_material(request):
     id_reserve = request.GET.get('id_reserve')
     try:
@@ -124,6 +121,7 @@ def cancel_reserve_material(request):
     
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
 def reserve(request):
     request_body = json.loads(request.body)
     date_start = datetime.strptime(request_body.get('date_start'), '%Y-%m-%d')
@@ -145,6 +143,7 @@ def reserve(request):
  # /find_place/?date_start=2023-12-9&date_end=2023-12-30
 @csrf_exempt
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def find_place_by_dates(request):
     date_start = datetime.strptime(request.GET.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request.GET.get('date_end'), '%Y-%m-%d')
@@ -174,6 +173,7 @@ def find_avalivable_place(date_start, date_end):
             return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
         
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def cancel_reservation(request):
     print(request.GET.get('id_reserve'))
     id_reserve = request.GET.get('id_reserve')
