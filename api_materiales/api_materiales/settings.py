@@ -94,10 +94,10 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bddssd',
-        'USER': "admin",
-        'PASSWORD': "VDnDpVSTwNNyfyq1GCX4QLGLbkcG1jJk",
-        'HOST': "VDnDpVSTwNNyfyq1GCX4QLGLbkcG1jJkdpg-cd7i3dien0hgupuslppg-a.oregon-postgres.render.com",
+        'NAME': 'dssd_xar1',
+        'USER': "dssd",
+        'PASSWORD': "kMiQMo6XtbYhK2M2acf4pbv4MZjuaj6F",
+        'HOST': "dpg-cd7d3oqen0hgupudp0t0-a.oregon-postgres.render.com",
         'PORT': 5432,
     }
 }
