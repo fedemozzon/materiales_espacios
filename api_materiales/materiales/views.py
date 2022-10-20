@@ -148,7 +148,7 @@ def reserve(request):
 def find_place_by_dates(request):
     date_start = datetime.strptime(request.GET.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request.GET.get('date_end'), '%Y-%m-%d')
-    return JsonResponse({"Message": find_avalivable_place(date_start, date_end)})
+    return JsonResponse({"Message": list(find_avalivable_place(date_start, date_end))})
 
 def find_avalivable_place(date_start, date_end):
     places = list(Factory_Place.objects.all().values_list())
@@ -164,7 +164,7 @@ def find_avalivable_place(date_start, date_end):
     available_places = list(filter(lambda place: place not in unavaliable_places, places))
     print(available_places)
     if(available_places != []):
-        return available_places
+        return list(available_places)
     else:
         places_in_date = list(filter(lambda place: date_start >= place[3].replace(tzinfo = None), places))
         if(places_in_date != []):
