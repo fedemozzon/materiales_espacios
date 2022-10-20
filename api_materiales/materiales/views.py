@@ -193,7 +193,7 @@ def reserve_place(request):
     date_start = datetime.strptime(request_body.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request_body.get('date_end'), '%Y-%m-%d')
     factory_place_id = request_body.get('factory_place_id')
-    enterprise_id = request_body.get('enterprise')
+    enterprise_id = request_body.get('enterprise_id')
     available_spaces = find_avalivable_place(date_start,date_end)
     if (isinstance(available_spaces, str)):
         return Response(available_spaces, status=status.HTTP_404_NOT_FOUND)
@@ -202,7 +202,7 @@ def reserve_place(request):
             return Response("No hay lugares disponibles en esa fecha", status=status.HTTP_404_NOT_FOUND)
         else:
             factory = Factory_Place.objects.get(id = request_body.get('factory_place_id'))
-            enterprise = Enterprise.objects.get(id=enterprise_id)
+            enterprise = Enterprise.objects.get(id = enterprise_id)
             reserve = Reserve_Factory.objects.create(factory_place_id = factory, date_start = date_start, date_end = date_end, enterprise_id = enterprise, state = "active")
             serializer = ReserveFactorySerializer(reserve)
             return Response(serializer.data, status=status.HTTP_200_OK)
