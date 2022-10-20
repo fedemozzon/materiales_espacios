@@ -1,5 +1,6 @@
 from cmath import inf, pi
 from datetime import date, datetime, tzinfo
+from tracemalloc import start
 from zoneinfo import available_timezones
 from django.shortcuts import render
 import json
@@ -18,7 +19,7 @@ def ask_for_material(request):
     id_material = request.GET.get('id_material')
     date_expected = request.GET.get('date_expected')
     cantidad = request.GET.get('cantidad')
-    return JsonResponse({"materials": get_providers_for_material(id_material, date_expected, cantidad)})
+    return JsonResponse({"Providers": get_providers_for_material(id_material, date_expected, cantidad)})
 
 @csrf_exempt
 def materials(request):
@@ -128,8 +129,6 @@ def reserve(request):
     date_end = datetime.strptime(request_body.get('date_end'), '%Y-%m-%d')
     available_spaces = find_avalivable_place(date_start,date_end)
     factory_place_id = request_body.get('factory_place_id')
-    print("lugares disponibles")
-    print(type(available_spaces) == str)
     if(type(available_spaces) == str):
         return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
     else:
@@ -141,6 +140,7 @@ def reserve(request):
             return JsonResponse({"message": "El lugar ha sido reservado"})
 
  # /find_place/?date_start=2023-12-9&date_end=2023-12-30
+ #/find_place/?date_start=2023-10-01&date_end=2023-11-13
 @csrf_exempt
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
@@ -153,16 +153,16 @@ def find_avalivable_place(date_start, date_end):
     places = list(Factory_Place.objects.all().values_list())
     places = list(map(lambda place: place[0], places))
     reservation = list(Reserve_Factory.objects.all().values_list())
-    for place in reservation:
-        print(place[2])
-        print(place[3])
-        print(date_start)
-        print(place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None))
-    unavaliable_places = list(filter(lambda place: (place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None) ), reservation))
-    unavaliable_places = list(map(lambda place: place[1], unavaliable_places))
-    print(unavaliable_places)
-    available_places = list(filter(lambda place: place not in unavaliable_places, places))
-    print(available_places)
+    reservation_correct = list(filter(lambda place:(((place[2].replace(tzinfo = None) > date_start < place[3].replace(tzinfo = None)) and (place[2].replace(tzinfo = None) > date_end < place[3].replace(tzinfo = None  )))), reservation))
+    reservation_correct2 = list(filter(lambda place:(((place[2].replace(tzinfo = None) < date_start > place[3].replace(tzinfo = None)) and (place[2].replace(tzinfo = None) < date_end > place[3].replace(tzinfo = None)))),reservation))
+    reservation_correct = reservation_correct + reservation_correct2
+    reservation_correct = list(map(lambda place: place[1], reservation_correct))
+    if(reservation_correct == []):
+        reservation = list(Reserve_Factory.objects.all().values_list())
+        reservation = list(map(lambda place: place[1], reservation))
+        available_places = list(filter (lambda place: place not in reservation, places))
+    else:
+        available_places = list(set(places + reservation_correct))
     if(available_places != []):
         return available_places
     else:
@@ -171,7 +171,6 @@ def find_avalivable_place(date_start, date_end):
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def cancel_reservation(request):
-    print(request.GET.get('id_reserve'))
     id_reserve = request.GET.get('id_reserve')
     try:
         Reserve_Factory.objects.get(id = id_reserve)
@@ -179,3 +178,12 @@ def cancel_reservation(request):
         return JsonResponse({"message": "Reserva cancelada correctamente"})
     except:
         return JsonResponse({"message": "No existe la reserva"})
+ 
+def verify_dates(date_start, date_end, date_start_reservation, date_end_reservation):
+    return verify_before_dates(date_start, date_end, date_start_reservation) and verify_after_dates(date_start, date_end, date_end_reservation)
+    
+def verify_after_dates(start, end, date):
+    return start > date < end
+
+def verify_before_dates(start, end, date):
+    return start < date > end 

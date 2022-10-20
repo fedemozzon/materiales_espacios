@@ -17,7 +17,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # revisar
     path('reserve', views.reserve, name='reserve_facility'),
+    #revisar
     path('find_place/', views.find_place_by_dates, name='find_place_by_dates'),
     path('ask_for_material/', views.ask_for_material, name='ask_for_material'),
     path('cancel_reserve_place/', views.cancel_reservation, name='cancel_reservation'),
