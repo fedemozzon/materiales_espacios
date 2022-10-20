@@ -7,7 +7,7 @@ processes = []
 [env]
 
 [[services]]
-  internal_port = 8080
+  internal_port = 8000
   protocol = "tcp"
 
   [[services.ports]]
