@@ -20,6 +20,10 @@ class Material_Provider(models.Model):
     total_amount = models.IntegerField(default = 1000)
     compromise_amount = models.IntegerField(default = 0)
 
+    def update_stock(self, updated_stock):
+        self.total_amount = updated_stock
+        self.save()
+
 class Material_arrived(models.Model):
     material_id = models.ForeignKey(Material, null=True, on_delete=models.CASCADE)
     provider_id = models.ForeignKey(Provider, null=True, on_delete=models.CASCADE)
@@ -67,5 +71,5 @@ class Reserve_Factory(models.Model):
     factory_place_id = models.ForeignKey(Factory_Place, null=True, on_delete=models.CASCADE)
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
-    enterprise = models.CharField(max_length=100)
+    enterprise_id = models.ForeignKey(Enterprise, null=True, on_delete=models.CASCADE)
     state = models.CharField(max_length=100)

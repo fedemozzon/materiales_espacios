@@ -26,6 +26,8 @@ schema_view = get_schema_view(
 
 
 router = routers.DefaultRouter()
+#router.register(r'materials', views.MaterialViewSet)
+#router.register(r'providers', views.ProviderViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -37,12 +39,17 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token_refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('materials', views.materials, name='materials'),
+    path('materials/', views.materials, name='materials'),
     path('stock/', views.stock_update, name='stock'),
     path('ask_for_material/', views.ask_for_material, name='ask_for_material'),
     path('reserve_material/', views.reserve_material, name='reserve_material'),
-    path('cancel_reserve_material/', views.cancel_reserve_material, name='cancel_reserve_material'),
+    path('material_reservations/', views.material_reservations, name='material_reservations'),
+    path('cancel_material_reservation/', views.cancel_material_reservation, name='cancel_reserve_material'),
     path('find_place/', views.find_place_by_dates, name='find_place_by_dates'),
-    path('reserve', views.reserve, name='reserve_facility'),
-    path('cancel_reserve_place/', views.cancel_reservation, name='cancel_reservation'),
+    path('reserve_place', views.reserve_place, name='reserve_facility'),
+    path('place_reservations/', views.place_reservations, name='place_reservations'),
+    path('cancel_place_reservation/', views.cancel_place_reservation, name='cancel_reservation'),
+    path('enterprises/', views.enterprises, name="get_enterprises"),
+    path('providers/', views.providers, name='get_providers'),
+    path('material_provider/', views.material_provider, name='get_material_provider'),
 ]
