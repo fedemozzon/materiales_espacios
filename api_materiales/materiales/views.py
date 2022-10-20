@@ -9,6 +9,9 @@ from .models import *
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework_swagger.views import get_swagger_view
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+
 
 # Query para probar el método 
 # localhost:8000/ask_for_material/?id_material=4&date_expected=2022-11-19&cantidad=100   
@@ -20,7 +23,8 @@ def ask_for_material(request):
     cantidad = request.GET.get('cantidad')
     return JsonResponse({"materials": get_providers_for_material(id_material, date_expected, cantidad)})
 
-@csrf_exempt
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def materials(request):
     materials = Material.objects.values_list()
     return JsonResponse({"materials": list(materials)})
@@ -105,6 +109,10 @@ def reserve_material_of_provider(id_material, id_provider, amount, reserve_date,
         return {"message":"Error en la consulta"}
     return json
 
+test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manual param", type=openapi.TYPE_BOOLEAN)
+
+
+@swagger_auto_schema(method='get', manual_parameters=[test_param])
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def cancel_reserve_material(request):
