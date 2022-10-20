@@ -147,7 +147,7 @@ def reserve(request):
 def find_place_by_dates(request):
     date_start = datetime.strptime(request.GET.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request.GET.get('date_end'), '%Y-%m-%d')
-    return JsonResponse({"Message": list(find_avalivable_place(date_start, date_end))})
+    return JsonResponse({"Message": find_avalivable_place(date_start, date_end)})
 
 def find_avalivable_place(date_start, date_end):
     places = list(Factory_Place.objects.all().values_list())
@@ -160,17 +160,13 @@ def find_avalivable_place(date_start, date_end):
         print(place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None))
     unavaliable_places = list(filter(lambda place: (place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None) ), reservation))
     unavaliable_places = list(map(lambda place: place[1], unavaliable_places))
+    print(unavaliable_places)
     available_places = list(filter(lambda place: place not in unavaliable_places, places))
     print(available_places)
     if(available_places != []):
-        return list(available_places)
+        return available_places
     else:
-        places_in_date = list(filter(lambda place: date_start >= place[3].replace(tzinfo = None), places))
-        if(places_in_date != []):
-            print(places_in_date)
-            return JsonResponse({"places": places_in_date})
-        else:
-            return JsonResponse({"message": "No hay lugares disponibles en esa fecha"})
+        return "No hay lugares disponibles en esa fecha"
         
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
