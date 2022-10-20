@@ -1,0 +1,19 @@
+# fly.toml file generated for dssd on 2022-10-19T20:20:59-03:00
+
+app = "dssd"
+kill_timeout = 15
+processes = []
+
+[env]
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
