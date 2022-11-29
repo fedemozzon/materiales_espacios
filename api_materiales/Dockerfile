@@ -20,6 +20,9 @@ COPY . /code/
 
 RUN python ./manage.py collectstatic --noinput
 
+RUN python ./manage.py makemigrations
+RUN python ./manage.py migrate
+
 EXPOSE 8000
 
 # # replace demo.wsgi with <project_name>.wsgi
