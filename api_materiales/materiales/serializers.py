@@ -17,9 +17,11 @@ class MaterialProviderSerializer(serializers.ModelSerializer):
        fields = "__all__"
 
 class ReserveMaterialSerializer(serializers.ModelSerializer):
-   class Meta:
+    material_id = MaterialSerializer(read_only=True, many=False)
+    provider_id = ProviderSerializer(read_only=True, many=False)
+    class Meta:
        model = Reserve_material
-       fields = "__all__"
+       fields =  "__all__"
 
 class FactoryPlaceSerializer(serializers.ModelSerializer):
    class Meta:
@@ -27,7 +29,8 @@ class FactoryPlaceSerializer(serializers.ModelSerializer):
        fields = "__all__"
 
 class ReserveFactorySerializer(serializers.ModelSerializer):
-   class Meta:
+    factory_place_id = FactoryPlaceSerializer(read_only=True, many=False)
+    class Meta:
        model = Reserve_Factory
        fields = "__all__"
 
