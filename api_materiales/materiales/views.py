@@ -133,9 +133,7 @@ def stock_update(request):
 def reserve_material(request):
     request_body = json.loads(request.body)
     id_material = request_body.get("id_material")
-    print(id_material)
     id_provider = request_body.get("id_provider")
-    print(id_provider)
     amount = request_body.get("amount")
     reserve_date = request_body.get("reserve_date")
     id_sede = request_body.get("id_sede")
@@ -177,7 +175,8 @@ def cancel_material_reservation(request):
         material_provider = Material_Provider.objects.all().filter(material_id=reserve.material_id, provider_id=reserve.provider_id)[0]
         material_provider.compromise_amount = material_provider.compromise_amount - reserve.amount
         material_provider.save()
-        reserve.delete()
+        reserve.state = "cancelled"
+        reserve.save(update_fields=['state'])
     except IndexError:
         return Response("No existe el material indicado para dicho proveedor", status=status.HTTP_400_BAD_REQUEST)
     except:
@@ -194,7 +193,7 @@ def reserve_place(request):
     date_end = datetime.strptime(request_body.get('date_end'), '%Y-%m-%d')
     factory_place_id = request_body.get('factory_place_id')
     enterprise_id = request_body.get('enterprise_id')
-    available_spaces = find_avalivable_place(date_start,date_end)
+    available_spaces = find_available_place(date_start,date_end)
     if (isinstance(available_spaces, str)):
         return Response(available_spaces, status=status.HTTP_404_NOT_FOUND)
     else:
@@ -214,7 +213,7 @@ def reserve_place(request):
 def find_place_by_dates(request):
     date_start = datetime.strptime(request.GET.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request.GET.get('date_end'), '%Y-%m-%d')
-    places = find_avalivable_place(date_start, date_end)
+    places = find_available_place(date_start, date_end)
     if (isinstance(places, str)):
         return Response(places, status=status.HTTP_404_NOT_FOUND)
     else:
@@ -222,16 +221,11 @@ def find_place_by_dates(request):
         serializer = FactoryPlaceSerializer(places_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-def find_avalivable_place(date_start, date_end):
+def find_available_place(date_start, date_end):
     places = list(Factory_Place.objects.all().values_list())
     places = list(map(lambda place: place[0], places))
-    reservation = list(Reserve_Factory.objects.all().values_list())
-    """ for place in reservation:
-        print(place[2])
-        print(place[3])
-        print(date_start)
-        print(place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None)) """
-    unavaliable_places = list(filter(lambda place: (place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None) ), reservation))
+    reservations = list(Reserve_Factory.objects.filter(state="active").values_list())
+    unavaliable_places = list(filter(lambda place: (place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None) ), reservations))
     unavaliable_places = list(map(lambda place: place[1], unavaliable_places))
     available_places = list(filter(lambda place: place not in unavaliable_places, places))
     if(available_places != []):
@@ -249,7 +243,8 @@ def cancel_place_reservation(request):
     id_reserve = request.GET.get('id_reserve')
     try:
         reserve = Reserve_Factory.objects.get(id = id_reserve)
-        reserve.delete()
-        return Response("Reserva eliminada correctamente", status=status.HTTP_204_NO_CONTENT)
+        reserve.state = "cancelled"
+        reserve.save(update_fields=['state'])
+        return Response("Reserva cancelada correctamente", status=status.HTTP_200_OK)
     except:
         return Response("No existe la reserva indicada", status=status.HTTP_400_BAD_REQUEST)
