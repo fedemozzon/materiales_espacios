@@ -168,20 +168,21 @@ test_param = openapi.Parameter('test', openapi.IN_QUERY, description="test manua
 @swagger_auto_schema(method='get', manual_parameters=[test_param])
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
-def cancel_material_reservation(request):
+def update_material_reservation(request):
     id_reserve = request.GET.get('id_reserve')
+    state = request.GET.get('state')
     try:
         reserve = Reserve_material.objects.get(id=id_reserve)
         material_provider = Material_Provider.objects.all().filter(material_id=reserve.material_id, provider_id=reserve.provider_id)[0]
         material_provider.compromise_amount = material_provider.compromise_amount - reserve.amount
         material_provider.save()
-        reserve.state = "cancelled"
+        reserve.state = state
         reserve.save(update_fields=['state'])
     except IndexError:
         return Response("No existe el material indicado para dicho proveedor", status=status.HTTP_400_BAD_REQUEST)
     except:
         return Response("No existe la reserva indicada", status=status.HTTP_400_BAD_REQUEST)
-    return Response("Reserva eliminada correctamente", status=status.HTTP_204_NO_CONTENT)
+    return Response("Reserva actualizada correctamente", status=status.HTTP_204_NO_CONTENT)
 
 
 @csrf_exempt
@@ -239,12 +240,13 @@ def find_available_place(date_start, date_end):
         
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
-def cancel_place_reservation(request):
+def update_place_reservation(request):
     id_reserve = request.GET.get('id_reserve')
+    state = request.GET.get('state')
     try:
         reserve = Reserve_Factory.objects.get(id = id_reserve)
-        reserve.state = "cancelled"
+        reserve.state = state
         reserve.save(update_fields=['state'])
-        return Response("Reserva cancelada correctamente", status=status.HTTP_200_OK)
+        return Response("Reserva actualizada correctamente", status=status.HTTP_200_OK)
     except:
         return Response("No existe la reserva indicada", status=status.HTTP_400_BAD_REQUEST)
