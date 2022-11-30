@@ -73,3 +73,19 @@ class Reserve_Factory(models.Model):
     date_end = models.DateTimeField()
     enterprise_id = models.ForeignKey(Enterprise, null=True, on_delete=models.CASCADE)
     state = models.CharField(max_length=100)
+
+class Material_reservation(models.Model):
+    material = models.ForeignKey(Material, null=True, on_delete=models.CASCADE)
+    provider = models.ForeignKey(Provider, null=True,on_delete=models.CASCADE)
+    amount = models.IntegerField(null=True, default = 0)
+    reserve_date = models.DateTimeField(null=True,)
+    place = models.ForeignKey(Factory_Place, null=True, on_delete=models.CASCADE)
+    state = models.CharField(max_length=100)
+    coleccion = models.IntegerField(null=True, default = 0)
+
+class Place_reservation(models.Model):
+    place = models.ForeignKey(Factory_Place, null=True, on_delete=models.CASCADE)
+    date_start = models.DateTimeField()
+    date_end = models.DateTimeField()
+    state = models.CharField(max_length=100)
+    coleccion = models.IntegerField(null=True, default = 0)

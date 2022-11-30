@@ -1,6 +1,6 @@
 # fly.toml file generated for dssd on 2022-10-19T20:20:59-03:00
 
-app = "dssd"
+app = "dssdapi9"
 kill_timeout = 15
 processes = []
 

@@ -64,17 +64,17 @@ def material_provider(request):
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def material_reservations(request):
-    enterprise_id = request.GET.get('enterprise_id')
-    reservations = Reserve_material.objects.filter(enterprise_id = int(enterprise_id))
-    serializer = ReserveMaterialSerializer(reservations, many = True)
+    coleccion = request.GET.get('coleccion')
+    reservations = Material_reservation.objects.filter(coleccion = int(coleccion))
+    serializer = MaterialReservationSerializer(reservations, many = True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def place_reservations(request):
-    enterprise_id = request.GET.get('enterprise_id')
-    reservations = Reserve_Factory.objects.filter(enterprise_id = int(enterprise_id))
-    serializer = ReserveFactorySerializer(reservations, many = True)
+    coleccion = request.GET.get('collection')
+    reservations = Place_reservation.objects.filter(coleccion = int(coleccion))
+    serializer = PlaceReservationSerializer(reservations, many = True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 def get_providers_for_material(id_material, date_expected, cantidad):
@@ -137,26 +137,24 @@ def reserve_material(request):
     amount = request_body.get("amount")
     reserve_date = request_body.get("reserve_date")
     id_sede = request_body.get("id_sede")
-    id_empresa = request_body.get("id_empresa")
-    new_reserve = reserve_material_of_provider(id_material, id_provider, amount, reserve_date, id_sede, id_empresa)
+    id_coleccion = request_body.get("id_coleccion")
+    new_reserve = reserve_material_of_provider(id_material, id_provider, amount, reserve_date, id_sede, id_coleccion)
     if(isinstance(new_reserve, str)):
         return Response(new_reserve, status=status.HTTP_400_BAD_REQUEST)
     else:
-        serializer = ReserveMaterialSerializer(new_reserve)
+        serializer = MaterialReservationSerializer(new_reserve)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-def reserve_material_of_provider(id_material, id_provider, amount, reserve_date, id_sede, id_empresa):
+def reserve_material_of_provider(id_material, id_provider, amount, reserve_date, id_sede, id_coleccion):
     try:
         material_provider = Material_Provider.objects.all().filter(material_id=id_material, provider_id=id_provider)[0]
         material_provider.compromise_amount = material_provider.compromise_amount + int(amount)
         material_provider.save()
-        newReserve = Reserve_material()
         material = Material.objects.get(id=id_material)
         provider = Provider.objects.get(id=id_provider)
         sede = Factory_Place.objects.get(id=id_sede)
-        empresa = Enterprise.objects.get(id=id_empresa)
-        newReserve.add(material, provider, amount, reserve_date, sede, empresa)
-        newReserve.save()
+        coleccion = int(id_coleccion)
+        newReserve = Material_reservation.objects.create(material=material, provider=provider, amount=amount, reserve_date=reserve_date, place=sede, state='active', coleccion=coleccion)
     except IndexError:
         return "No existe el material indicado para dicho proveedor"
     except: 
@@ -172,10 +170,11 @@ def update_material_reservation(request):
     id_reserve = request.GET.get('id_reserve')
     state = request.GET.get('state')
     try:
-        reserve = Reserve_material.objects.get(id=id_reserve)
-        material_provider = Material_Provider.objects.all().filter(material_id=reserve.material_id, provider_id=reserve.provider_id)[0]
-        material_provider.compromise_amount = material_provider.compromise_amount - reserve.amount
-        material_provider.save()
+        reserve = Material_reservation.objects.get(id=id_reserve)
+        if(state == 'cancelled'):
+            material_provider = Material_Provider.objects.all().filter(material_id=reserve.material, provider_id=reserve.provider)[0]
+            material_provider.compromise_amount = material_provider.compromise_amount - reserve.amount
+            material_provider.save()
         reserve.state = state
         reserve.save(update_fields=['state'])
     except IndexError:
@@ -183,7 +182,6 @@ def update_material_reservation(request):
     except:
         return Response("No existe la reserva indicada", status=status.HTTP_400_BAD_REQUEST)
     return Response("Reserva actualizada correctamente", status=status.HTTP_204_NO_CONTENT)
-
 
 @csrf_exempt
 @api_view(['POST'])
@@ -193,7 +191,7 @@ def reserve_place(request):
     date_start = datetime.strptime(request_body.get('date_start'), '%Y-%m-%d')
     date_end = datetime.strptime(request_body.get('date_end'), '%Y-%m-%d')
     factory_place_id = request_body.get('factory_place_id')
-    enterprise_id = request_body.get('enterprise_id')
+    coleccion = request_body.get('coleccion_id')
     available_spaces = find_available_place(date_start,date_end)
     if (isinstance(available_spaces, str)):
         return Response(available_spaces, status=status.HTTP_404_NOT_FOUND)
@@ -202,9 +200,8 @@ def reserve_place(request):
             return Response("No hay lugares disponibles en esa fecha", status=status.HTTP_404_NOT_FOUND)
         else:
             factory = Factory_Place.objects.get(id = request_body.get('factory_place_id'))
-            enterprise = Enterprise.objects.get(id = enterprise_id)
-            reserve = Reserve_Factory.objects.create(factory_place_id = factory, date_start = date_start, date_end = date_end, enterprise_id = enterprise, state = "active")
-            serializer = ReserveFactorySerializer(reserve)
+            reserve = Place_reservation.objects.create(place = factory, date_start = date_start, date_end = date_end, coleccion = int(coleccion), state = "active")
+            serializer = PlaceReservationSerializer(reserve)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
  # /find_place/?date_start=2023-12-9&date_end=2023-12-30
@@ -225,7 +222,7 @@ def find_place_by_dates(request):
 def find_available_place(date_start, date_end):
     places = list(Factory_Place.objects.all().values_list())
     places = list(map(lambda place: place[0], places))
-    reservations = list(Reserve_Factory.objects.filter(state="active").values_list())
+    reservations = list(Place_reservation.objects.filter(state="active").values_list())
     unavaliable_places = list(filter(lambda place: (place[2].replace(tzinfo = None) <= date_start <= place[3].replace(tzinfo = None) ), reservations))
     unavaliable_places = list(map(lambda place: place[1], unavaliable_places))
     available_places = list(filter(lambda place: place not in unavaliable_places, places))
@@ -244,7 +241,7 @@ def update_place_reservation(request):
     id_reserve = request.GET.get('id_reserve')
     state = request.GET.get('state')
     try:
-        reserve = Reserve_Factory.objects.get(id = id_reserve)
+        reserve = Place_reservation.objects.get(id = id_reserve)
         reserve.state = state
         reserve.save(update_fields=['state'])
         return Response("Reserva actualizada correctamente", status=status.HTTP_200_OK)
